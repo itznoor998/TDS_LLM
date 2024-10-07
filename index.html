@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ececec;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        h1 {
+            color: #ff5733;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            margin-left: 10px;
+            padding: 5px;
+            border: 2px solid #ff5733;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #timerDisplay {
+            font-size: 3em;
+            margin: 20px 0;
+            color: #ff5733;
+        }
+
+        button {
+            background-color: #ff5733;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #e04e25;
+        }
+
+        #tutorialBtn {
+            background-color: #6c757d;
+        }
+
+        #tutorialBtn:hover {
+            background-color: #5a6268;
+        }
+
+        #tutorialModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding-top: 60px;
+        }
+
+        #modalContent {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+
+        #closeModal {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        #tutorialText {
+            text-align: left;
+        }
+
+        #tutorialText h2 {
+            margin-top: 0;
+            color: #ff5733;
+        }
+
+        @media (max-width: 500px) {
+            #timerDisplay {
+                font-size: 2.5em;
+            }
+
+            button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Pomodoro Timer</h1>
+        <div class="input-group">
+            <label for="minutes">Set Timer (minutes):</label>
+            <input type="number" id="minutes" min="1" max="60" value="25">
+        </div>
+        <button id="startBtn">Start Timer</button>
+        <div id="timerDisplay">25:00</div>
+        <button id="resetBtn">Reset</button>
+        <button id="tutorialBtn">How to Use</button>
+    </div>
+
+    <div id="tutorialModal">
+        <div id="modalContent">
+            <span id="closeModal" style="cursor:pointer; float:right;">&times;</span>
+            <div id="tutorialText">
+                <h2>Pomodoro Technique Tutorial</h2>
+                <p>The Pomodoro Technique is a time management method that can help improve your focus and productivity.
+                    Follow these steps:</p>
+                <ol>
+                    <li>Set a timer for a specific period (traditionally 25 minutes).</li>
+                    <li>Work on a task until the timer rings.</li>
+                    <li>Take a short break (5 minutes) after the timer goes off.</li>
+                    <li>Repeat the process. After completing four sessions, take a longer break (15-30 minutes).</li>
+                </ol>
+                <p>Use this timer to structure your work and take meaningful breaks to maintain productivity!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timer;
+        let isRunning = false;
+
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const minutesInput = document.getElementById('minutes');
+
+        startBtn.addEventListener('click', startTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // Tutorial modal  
+        const tutorialBtn = document.getElementById('tutorialBtn');
+        const tutorialModal = document.getElementById('tutorialModal');
+        const closeModal = document.getElementById('closeModal');
+
+        tutorialBtn.addEventListener('click', () => {
+            tutorialModal.style.display = "block";
+        });
+
+        closeModal.addEventListener('click', () => {
+            tutorialModal.style.display = "none";
+        });
+
+        window.onclick = function (event) {
+            if (event.target === tutorialModal) {
+                tutorialModal.style.display = "none";
+            }
+        };
+
+        function startTimer() {
+            if (isRunning) return; // Prevent multiple timers  
+            isRunning = true;
+
+            let totalTime = parseInt(minutesInput.value) * 60; // Convert minutes to seconds  
+            let currentTime = totalTime;
+
+            timerDisplay.textContent = formatTime(currentTime);
+
+            timer = setInterval(() => {
+                currentTime--;
+                timerDisplay.textContent = formatTime(currentTime);
+
+                if (currentTime <= 0) {
+                    clearInterval(timer);
+                    isRunning = false;
+                    alert("Time's up! Take a break.");
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            timerDisplay.textContent = `${minutesInput.value}:00`;
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }  
+    </script>
+</body>
+
+</html>
